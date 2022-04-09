@@ -4,9 +4,18 @@ from urllib.parse import quote
 import numpy
 import math
 
-
-def getLocation(address, city = None, coordtype = None):
-    encodeAdress = quote(address)
+"""
+用于获取指定位置的经度纬度坐标
+def getLocation(address,  # 指定的地址
+                city = None, # 指定的城市，用于提升精确度
+                coordtype = None # 获取坐标的坐标系，默认为gcj02ll
+                ):
+获取结果为gcj02ll坐标
+"""
+def getLocation(address, city = None, coordtype = 'gcj02ll'):
+    encodeAdress = quote(address)  # 把地址转码
+    
+    # 确认方法参数
     if city:
         encodeCity = quote(city)
         cityPara = '&city=' + encodeCity
@@ -16,15 +25,23 @@ def getLocation(address, city = None, coordtype = None):
         coorPara = '&ret_coordtype=' + coordtype
     else:
         coorPara = ''
+    
+    # 将方法参数转为url格式
     locUrl = 'https://api.map.baidu.com/geocoding/v3/' \
              + '?address=' + encodeAdress \
              + cityPara \
              + '&output=json' \
              +  coorPara\
              + '&ak=6ujEgLZ56RpEldqFam2461U4fouc8Sn4'
+    
+    
     try:
+        # 传入百度地图接口
         result = urlopen((locUrl))
+        
+        # 获取结果
         res = result.read().decode()
+        # 将json数据转为数组形式
         encodeResult = json.loads(res)
         lng = float(encodeResult['result']['location']['lng'])
         lat = float(encodeResult['result']['location']['lat'])
@@ -33,7 +50,7 @@ def getLocation(address, city = None, coordtype = None):
         print(err)
         location = [numpy.nan, numpy.nan]
     return location
-
+# 坐标转换
 def wgs84togcj02(localStr):
     lng = localStr[0]
     lat = localStr[1]
